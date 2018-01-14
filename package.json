@@ -1,0 +1,36 @@
+{
+  "name": "@magento/directive-parser",
+  "version": "0.1.0",
+  "description": "Parses Magento PWA Studio directives",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "src"
+  ],
+  "scripts": {
+    "test": "run-p jest:ci prettier:check",
+    "jest:ci": "jest -i",
+    "test:dev": "jest --watch",
+    "prettier": "prettier --write 'src/**/*.js'",
+    "prettier:check": "prettier-check 'src/**/*.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/magento-research/directive-parser.git"
+  },
+  "keywords": [
+    "magento"
+  ],
+  "author": "Magento Commerce",
+  "license": "(OSL-3.0 OR AFL-3.0)",
+  "bugs": {
+    "url": "https://github.com/magento-research/directive-parser/issues"
+  },
+  "homepage": "https://github.com/magento-research/directive-parser#readme",
+  "devDependencies": {
+    "jest": "^22.0.6",
+    "npm-run-all": "^4.1.2",
+    "prettier": "^1.10.2",
+    "prettier-check": "^2.0.0"
+  }
+}

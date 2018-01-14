@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Parses the kitchen sink 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "type": "annotation",
+      "value": "RootComponent",
+    },
+    Object {
+      "lhs": Object {
+        "location": Object {
+          "column": 14,
+          "line": 4,
+        },
+        "type": "word",
+        "value": "foo",
+      },
+      "rhs": Object {
+        "items": Array [
+          Object {
+            "location": Object {
+              "column": 21,
+              "line": 4,
+            },
+            "type": "word",
+            "value": "bizz",
+          },
+          Object {
+            "location": Object {
+              "column": 27,
+              "line": 4,
+            },
+            "type": "word",
+            "value": "bazz",
+          },
+          Object {
+            "location": Object {
+              "column": 33,
+              "line": 4,
+            },
+            "type": "word",
+            "value": "buzz",
+          },
+        ],
+        "type": "list",
+      },
+      "type": "assignment",
+    },
+    Object {
+      "lhs": Object {
+        "location": Object {
+          "column": 14,
+          "line": 5,
+        },
+        "type": "word",
+        "value": "bar",
+      },
+      "rhs": Object {
+        "location": Object {
+          "column": 20,
+          "line": 5,
+        },
+        "type": "word",
+        "value": "car",
+      },
+      "type": "assignment",
+    },
+    Object {
+      "lhs": Object {
+        "location": Object {
+          "column": 14,
+          "line": 6,
+        },
+        "type": "word",
+        "value": "jar",
+      },
+      "rhs": Object {
+        "location": Object {
+          "column": 23,
+          "line": 6,
+        },
+        "type": "string",
+        "value": "test",
+      },
+      "type": "assignment",
+    },
+  ],
+  "type": "MagentoDirective",
+}
+`;
