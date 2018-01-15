@@ -10,8 +10,14 @@ Object {
     Object {
       "lhs": Object {
         "location": Object {
-          "column": 14,
-          "line": 4,
+          "end": Object {
+            "column": 14,
+            "line": 4,
+          },
+          "start": Object {
+            "column": 11,
+            "line": 4,
+          },
         },
         "type": "word",
         "value": "foo",
@@ -20,24 +26,42 @@ Object {
         "items": Array [
           Object {
             "location": Object {
-              "column": 21,
-              "line": 4,
+              "end": Object {
+                "column": 21,
+                "line": 4,
+              },
+              "start": Object {
+                "column": 17,
+                "line": 4,
+              },
             },
             "type": "word",
             "value": "bizz",
           },
           Object {
             "location": Object {
-              "column": 27,
-              "line": 4,
+              "end": Object {
+                "column": 27,
+                "line": 4,
+              },
+              "start": Object {
+                "column": 23,
+                "line": 4,
+              },
             },
             "type": "word",
             "value": "bazz",
           },
           Object {
             "location": Object {
-              "column": 33,
-              "line": 4,
+              "end": Object {
+                "column": 33,
+                "line": 4,
+              },
+              "start": Object {
+                "column": 29,
+                "line": 4,
+              },
             },
             "type": "word",
             "value": "buzz",
@@ -50,16 +74,28 @@ Object {
     Object {
       "lhs": Object {
         "location": Object {
-          "column": 14,
-          "line": 5,
+          "end": Object {
+            "column": 14,
+            "line": 5,
+          },
+          "start": Object {
+            "column": 11,
+            "line": 5,
+          },
         },
         "type": "word",
         "value": "bar",
       },
       "rhs": Object {
         "location": Object {
-          "column": 20,
-          "line": 5,
+          "end": Object {
+            "column": 20,
+            "line": 5,
+          },
+          "start": Object {
+            "column": 17,
+            "line": 5,
+          },
         },
         "type": "word",
         "value": "car",
@@ -69,16 +105,28 @@ Object {
     Object {
       "lhs": Object {
         "location": Object {
-          "column": 14,
-          "line": 6,
+          "end": Object {
+            "column": 14,
+            "line": 6,
+          },
+          "start": Object {
+            "column": 11,
+            "line": 6,
+          },
         },
         "type": "word",
         "value": "jar",
       },
       "rhs": Object {
         "location": Object {
-          "column": 23,
-          "line": 6,
+          "end": Object {
+            "column": 23,
+            "line": 6,
+          },
+          "start": Object {
+            "column": 17,
+            "line": 6,
+          },
         },
         "type": "string",
         "value": "test",

@@ -22,19 +22,18 @@ class Lexer {
         return this.input.charAt(this.position);
     }
 
-    get location() {
-        const beforePos = this.input.substring(0, this.position);
-        const rows = beforePos.split('\n');
-        const column = rows[rows.length - 1].length;
-
-        return { line: rows.length, column };
-    }
-
-    finishToken({ type, value }) {
+    finishToken({ type, value, range: [start, end] }) {
+        const { input } = this;
         this.tokens.push({
             type,
             value,
-            location: this.location
+            // Lazily calculate just when needed
+            get location() {
+                return {
+                    start: positionFromIndex(start, input),
+                    end: positionFromIndex(end, input)
+                };
+            }
         });
         this.readToken();
     }
@@ -78,6 +77,7 @@ class Lexer {
     }
 
     readNextToken() {
+        const { position } = this;
         switch (this.currentChar) {
             case "'":
             case '"':
@@ -85,15 +85,24 @@ class Lexer {
                 return;
             case '@':
                 this.eat();
-                this.finishToken({ type: 'at' });
+                this.finishToken({
+                    type: 'at',
+                    range: [position - 1, position]
+                });
                 return;
             case '=':
                 this.eat();
-                this.finishToken({ type: 'assign' });
+                this.finishToken({
+                    type: 'assign',
+                    range: [position - 1, position]
+                });
                 return;
             case ',':
                 this.eat();
-                this.finishToken({ type: 'comma' });
+                this.finishToken({
+                    type: 'comma',
+                    range: [position - 1, position]
+                });
             case '*':
             case '/':
                 this.eat();
@@ -104,6 +113,7 @@ class Lexer {
     }
 
     parseString() {
+        const start = this.position;
         const openQuoteChar = this.eat();
         const buf = [];
 
@@ -120,27 +130,37 @@ class Lexer {
         this.eat(openQuoteChar);
         this.finishToken({
             type: 'string',
-            value: buf.join('')
+            value: buf.join(''),
+            range: [start, this.position]
         });
     }
 
     readWord() {
+        const start = this.position;
         const buf = [];
 
         while (this.match(reWordChar)) buf.push(this.eat());
 
         this.finishToken({
             type: 'word',
-            value: buf.join('')
+            value: buf.join(''),
+            range: [start, this.position]
         });
     }
 
     throwLexError(msg) {
-        const { location } = this;
-        throw new Error(
-            `Parse error at ${location.line}:${location.column} - ${msg}`
-        );
+        const { position, input } = this;
+        const { line, column } = positionFromIndex(position, input);
+        throw new Error(`Parse error at ${line}:${column} - ${msg}`);
     }
+}
+
+function positionFromIndex(index, str) {
+    const beforeStartStr = str.substring(0, index);
+    const lines = beforeStartStr.split('\n');
+    const column = lines[lines.length - 1].length;
+
+    return { line: lines.length, column };
 }
 
 module.exports = Lexer;
