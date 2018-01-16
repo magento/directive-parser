@@ -7,11 +7,15 @@ class Lexer {
         this.input = input;
         this.position = 0;
         this.tokens = [];
+        this.error = null;
     }
 
     execute() {
         this.readToken();
-        return this.tokens;
+        return {
+            tokens: this.tokens,
+            error: this.error
+        };
     }
 
     get isDone() {
@@ -108,7 +112,7 @@ class Lexer {
                 this.eat();
                 return this.readToken();
             default:
-                this.throwLexError(`Unknown token "${this.currentChar}"`);
+                this.reportError(`Unknown token "${this.currentChar}"`);
         }
     }
 
@@ -119,7 +123,7 @@ class Lexer {
 
         while (!this.match(openQuoteChar)) {
             if (this.match(reNewLine) || this.isDone) {
-                return this.throwLexError(`Unterminated string encountered`);
+                return this.reportError(`Unterminated string encountered`);
             }
 
             buf.push(this.eat());
@@ -146,10 +150,15 @@ class Lexer {
         });
     }
 
-    throwLexError(msg) {
+    reportError(msg) {
         const { position, input } = this;
-        const { line, column } = positionFromIndex(position, input);
-        throw new Error(`Parse error at ${line}:${column} - ${msg}`);
+        const location = positionFromIndex(position, input);
+        this.error = {
+            message: msg,
+            location: { start: location }
+        };
+        // End lexing
+        this.position = this.input.length;
     }
 }
 

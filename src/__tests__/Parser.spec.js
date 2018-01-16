@@ -65,23 +65,22 @@ test('Parses the kitchen sink', () => {
 });
 
 test('Fails when directive is unrecognized type', () => {
-    const fn = () => new Parser('@Unknown').parse();
-    expect(fn).toThrow('Unrecognized Directive: Unknown');
+    const { error } = new Parser('@Unknown').parse();
+    expect(error.message).toEqual('Unrecognized Directive: Unknown');
 });
 
 test('Fails when string is not terminated', () => {
-    const fn = () => new Parser('foo = "bar').parse();
-    expect(fn).toThrow(/Unterminated string encountered/);
+    const { error } = new Parser('foo = "bar').parse();
+    expect(error.message).toBe('Unterminated string encountered');
 });
 
 test('Fails when list has dangling comma that creates ambiguity with ident on next line', () => {
-    const fn = () =>
-        new Parser(`
+    const { error } = new Parser(`
         @RootComponent
         pageTypes = foo, bizz,
         description = "hey"
     `).parse();
-    expect(fn).toThrow(
+    expect(error.message).toEqual(
         'Encountered illegal assignment in an unterminated list'
     );
 });

@@ -8,10 +8,16 @@ class Parser {
         this.tokens = null;
         this.position = 0;
         this.ast = null;
+        this.error = null;
     }
 
     parse() {
-        const tokens = this.lexer.execute();
+        const { tokens, error } = this.lexer.execute();
+        if (error) {
+            this.error = error;
+            return this;
+        }
+
         this.tokens = tokens.slice();
         const node = {
             type: 'MagentoDirective',
@@ -43,7 +49,7 @@ class Parser {
                     node.body.push(this.parseLine(newNode));
                     break;
                 default:
-                    this.throwParseError(
+                    this.reportError(
                         `Unknown top-level token of type "${
                             this.currentToken.type
                         }" encounted`
@@ -74,7 +80,7 @@ class Parser {
         node.type = 'annotation';
         node.value = this.eat('identifier').value;
         if (!ANNOTATIONS.has(node.value)) {
-            this.throwParseError(`Unrecognized Directive: ${node.value}`);
+            this.reportError(`Unrecognized Directive: ${node.value}`);
         }
         return node;
     }
@@ -84,9 +90,7 @@ class Parser {
         if ((this.match('assign'), next)) {
             return this.parseAssignment(node);
         }
-        this.throwParseError(
-            `Unexpected identifier "${this.currentToken.value}"`
-        );
+        this.reportError(`Unexpected identifier "${this.currentToken.value}"`);
     }
 
     parseAssignment(node) {
@@ -110,7 +114,7 @@ class Parser {
             return node;
         }
 
-        this.throwParseError(
+        this.reportError(
             `Unrecognized right-hand side value in assignment of "${
                 node.lhs.value
             }". Found: "${this.peek().type}"`
@@ -137,21 +141,24 @@ class Parser {
             // Dangling comma not allowed when it would create ambiguity with next
             // token
             if (hasComma && this.match('assign', this.peek())) {
-                this.throwParseError(
+                this.reportError(
                     'Encountered illegal assignment in an unterminated list'
                 );
             }
         }
 
         if (!this.isDone && this.match('comma')) {
-            this.throwParseError('Unterminated list encountered');
+            this.reportError('Unterminated list encountered');
         }
 
         return node;
     }
 
-    throwParseError(msg) {
-        throw new Error(msg);
+    reportError(message) {
+        // TODO: Location information
+        this.error = { message };
+        // Stop processing new tokens
+        this.position = this.tokens.length;
     }
 }
 
