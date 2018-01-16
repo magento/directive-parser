@@ -110,3 +110,11 @@ test('Parses multiple pieces of metadata on a single line', () => {
     expect(third.type).toEqual('assignment');
     expect(third.rhs.value).toEqual('test');
 });
+
+test('isDirective is "true" when a valid annotation is found', () => {
+    expect(Parser.isDirective('@RootComponent')).toBe(true);
+});
+
+test('isDirective is "false" when an invalid annotation is found', () => {
+    expect(Parser.isDirective('@Foobar')).toBe(false);
+});

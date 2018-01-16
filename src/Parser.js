@@ -162,4 +162,13 @@ class Parser {
     }
 }
 
+/**
+ * Determine (without a full parse) if a string is a PWA Studio directive.
+ * A string is considered to be a directive if it has a valid annotation
+ */
+Parser.isDirective = str => {
+    const annotationsPattern = [...ANNOTATIONS].map(s => `@${s}`).join('|');
+    return new RegExp(annotationsPattern).test(str);
+};
+
 module.exports = Parser;
