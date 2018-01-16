@@ -124,14 +124,23 @@ class Parser {
         while (!this.isDone && this.match('identifier')) {
             items.push(this.eat());
             if (this.isDone) break; // Last item in the list, and last line of directive
-            const hasComma = this.eat('comma');
+
+            let hasComma = this.eat('comma');
             if (!hasComma && this.match('identifier')) {
-                // Last item in a list (no comma), new identifier means we're
+                // Last item in a list (no comma), so seeing a new identifier means we're
                 // on a new line
                 break;
             }
 
-            if (!this.isDone) this.eat('comma');
+            if (this.isDone) return node;
+
+            // Dangling comma not allowed when it would create ambiguity with next
+            // token
+            if (hasComma && this.match('assign', this.peek())) {
+                this.throwParseError(
+                    'Encountered illegal assignment in an unterminated list'
+                );
+            }
         }
 
         if (!this.isDone && this.match('comma')) {

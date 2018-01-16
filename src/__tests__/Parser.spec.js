@@ -73,3 +73,25 @@ test('Fails when string is not terminated', () => {
     const fn = () => new Parser('foo = "bar').parse();
     expect(fn).toThrow(/Unterminated string encountered/);
 });
+
+test('Fails when list has dangling comma that creates ambiguity with ident on next line', () => {
+    const fn = () =>
+        new Parser(`
+        @RootComponent
+        pageTypes = foo, bizz,
+        description = "hey"
+    `).parse();
+    expect(fn).toThrow(
+        'Encountered illegal assignment in an unterminated list'
+    );
+});
+
+test('Parses when dangling comma in list does not create ambiguity because EOF', () => {
+    const { ast } = new Parser(`
+        @RootComponent
+        pageTypes = foo, bizz,
+    `).parse();
+    const [, node] = ast.body;
+    expect(node.type).toEqual('assignment');
+    expect(node.rhs.items.length).toEqual(2);
+});
