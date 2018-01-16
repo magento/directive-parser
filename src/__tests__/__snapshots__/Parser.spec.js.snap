@@ -19,7 +19,7 @@ Object {
             "line": 4,
           },
         },
-        "type": "word",
+        "type": "identifier",
         "value": "foo",
       },
       "rhs": Object {
@@ -35,7 +35,7 @@ Object {
                 "line": 4,
               },
             },
-            "type": "word",
+            "type": "identifier",
             "value": "bizz",
           },
           Object {
@@ -49,7 +49,7 @@ Object {
                 "line": 4,
               },
             },
-            "type": "word",
+            "type": "identifier",
             "value": "bazz",
           },
           Object {
@@ -63,7 +63,7 @@ Object {
                 "line": 4,
               },
             },
-            "type": "word",
+            "type": "identifier",
             "value": "buzz",
           },
         ],
@@ -83,7 +83,7 @@ Object {
             "line": 5,
           },
         },
-        "type": "word",
+        "type": "identifier",
         "value": "bar",
       },
       "rhs": Object {
@@ -97,7 +97,7 @@ Object {
             "line": 5,
           },
         },
-        "type": "word",
+        "type": "identifier",
         "value": "car",
       },
       "type": "assignment",
@@ -114,7 +114,7 @@ Object {
             "line": 6,
           },
         },
-        "type": "word",
+        "type": "identifier",
         "value": "jar",
       },
       "rhs": Object {

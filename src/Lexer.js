@@ -1,5 +1,5 @@
 const reWhitespace = /\s/;
-const reWordChar = /[\w-]/;
+const reIdentifierChar = /[\w-]/;
 const reNewLine = /\n/;
 
 class Lexer {
@@ -72,7 +72,7 @@ class Lexer {
         this.eatWhitespace();
         if (this.isDone) return;
 
-        if (reWordChar.test(this.currentChar)) this.readWord();
+        if (reIdentifierChar.test(this.currentChar)) this.readIdentifier();
         else this.readNextToken();
     }
 
@@ -118,10 +118,8 @@ class Lexer {
         const buf = [];
 
         while (!this.match(openQuoteChar)) {
-            if (this.match(reNewLine)) {
-                return this.throwLexError(
-                    `Expected string to terminate, but instead found newline`
-                );
+            if (this.match(reNewLine) || this.isDone) {
+                return this.throwLexError(`Unterminated string encountered`);
             }
 
             buf.push(this.eat());
@@ -135,14 +133,14 @@ class Lexer {
         });
     }
 
-    readWord() {
+    readIdentifier() {
         const start = this.position;
         const buf = [];
 
-        while (this.match(reWordChar)) buf.push(this.eat());
+        while (this.match(reIdentifierChar)) buf.push(this.eat());
 
         this.finishToken({
-            type: 'word',
+            type: 'identifier',
             value: buf.join(''),
             range: [start, this.position]
         });

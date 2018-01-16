@@ -16,17 +16,17 @@ test('Parses assignment with list as rhs', () => {
 
     const list = node.rhs;
     expect(list.type).toEqual('list');
-    ['bizz', 'bazz', 'buzz'].forEach((word, i) => {
-        expect(list.items[i].value).toEqual(word);
+    ['bizz', 'bazz', 'buzz'].forEach((ident, i) => {
+        expect(list.items[i].value).toEqual(ident);
     });
 });
 
-test('Parses assignment with word as rhs', () => {
+test('Parses assignment with identifier as rhs', () => {
     const { ast } = new Parser('foo = bizz').parse();
     const [node] = ast.body;
 
     expect(node.type).toEqual('assignment');
-    expect(node.rhs.type).toEqual('word');
+    expect(node.rhs.type).toEqual('identifier');
     expect(node.rhs.value).toEqual('bizz');
 });
 
@@ -62,4 +62,14 @@ test('Parses the kitchen sink', () => {
          */
     `).parse();
     expect(ast).toMatchSnapshot();
+});
+
+test('Fails when directive is unrecognized type', () => {
+    const fn = () => new Parser('@Unknown').parse();
+    expect(fn).toThrow('Unrecognized Directive: Unknown');
+});
+
+test('Fails when string is not terminated', () => {
+    const fn = () => new Parser('foo = "bar').parse();
+    expect(fn).toThrow(/Unterminated string encountered/);
 });

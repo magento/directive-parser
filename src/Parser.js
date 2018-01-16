@@ -39,7 +39,7 @@ class Parser {
                 case this.match('at'):
                     node.body.push(this.parseAnnotation(newNode));
                     break;
-                case this.match('word'):
+                case this.match('identifier'):
                     node.body.push(this.parseLine(newNode));
                     break;
                 default:
@@ -72,7 +72,7 @@ class Parser {
     parseAnnotation(node) {
         this.eat('at');
         node.type = 'annotation';
-        node.value = this.eat('word').value;
+        node.value = this.eat('identifier').value;
         if (!ANNOTATIONS.has(node.value)) {
             this.throwParseError(`Unrecognized Directive: ${node.value}`);
         }
@@ -84,11 +84,13 @@ class Parser {
         if ((this.match('assign'), next)) {
             return this.parseAssignment(node);
         }
-        this.throwParseError(`Unexpected word "${this.currentToken.value}"`);
+        this.throwParseError(
+            `Unexpected identifier "${this.currentToken.value}"`
+        );
     }
 
     parseAssignment(node) {
-        node.lhs = this.eat('word');
+        node.lhs = this.eat('identifier');
         this.eat('assign');
         node.type = 'assignment';
         node.rhs = {};
@@ -98,7 +100,7 @@ class Parser {
             return node;
         }
 
-        if (this.match('word')) {
+        if (this.match('identifier')) {
             if (this.match('comma', this.peek())) {
                 this.parseList(node.rhs);
                 return node;
@@ -119,11 +121,13 @@ class Parser {
         node.type = 'list';
         const items = (node.items = []);
 
-        while (!this.isDone && this.match('word')) {
+        while (!this.isDone && this.match('identifier')) {
             items.push(this.eat());
-            if (this.isDone) break;
+            if (this.isDone) break; // Last item in the list, and last line of directive
             const hasComma = this.eat('comma');
-            if (!hasComma && this.match('word')) {
+            if (!hasComma && this.match('identifier')) {
+                // Last item in a list (no comma), new identifier means we're
+                // on a new line
                 break;
             }
 
