@@ -16,7 +16,9 @@ npm install @magento/directive-parser
 
 ```js
 const Parser = require('@magento/directive-parser');
-const { ast } = new Parser(directiveString).parse();
+const { ast, error } = new Parser(directiveString).parse();
+
+// if `error` is truthy, the parse failed
 ```
 
 ## Example Directive (Kitchen Sink)

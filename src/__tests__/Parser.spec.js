@@ -94,3 +94,19 @@ test('Parses when dangling comma in list does not create ambiguity because EOF',
     expect(node.type).toEqual('assignment');
     expect(node.rhs.items.length).toEqual(2);
 });
+
+test('Parses multiple pieces of metadata on a single line', () => {
+    const { ast: { body }, error } = new Parser(`
+        @RootComponent pageTypes = foo, bizz description = "test"
+    `).parse();
+
+    const [first, second, third] = body;
+    expect(first.type).toEqual('annotation');
+    expect(first.value).toEqual('RootComponent');
+
+    expect(second.type).toEqual('assignment');
+    expect(second.rhs.items.length).toEqual(2);
+
+    expect(third.type).toEqual('assignment');
+    expect(third.rhs.value).toEqual('test');
+});
