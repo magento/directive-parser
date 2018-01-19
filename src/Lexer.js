@@ -3,9 +3,10 @@ const reIdentifierChar = /[\w-]/;
 const reNewLine = /\n/;
 
 class Lexer {
-    constructor(input) {
+    constructor({ input, start, end }) {
         this.input = input;
-        this.position = 0;
+        this.position = start;
+        this.end = end;
         this.tokens = [];
         this.error = null;
     }
@@ -19,7 +20,7 @@ class Lexer {
     }
 
     get isDone() {
-        return this.position >= this.input.length;
+        return this.position >= this.end;
     }
 
     get currentChar() {
@@ -107,6 +108,7 @@ class Lexer {
                     type: 'comma',
                     range: [position - 1, position]
                 });
+                return;
             case '*':
             case '/':
                 this.eat();
@@ -153,12 +155,10 @@ class Lexer {
     reportError(msg) {
         const { position, input } = this;
         const location = positionFromIndex(position, input);
-        this.error = {
-            message: msg,
-            location: { start: location }
-        };
+        const error = (this.error = new Error(msg));
+        error.location = { start: location };
         // End lexing
-        this.position = this.input.length;
+        this.position = this.end;
     }
 }
 

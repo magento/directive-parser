@@ -1,7 +1,7 @@
 const Parser = require('../Parser');
 
 test('Parses directive', () => {
-    const { ast } = new Parser('@RootComponent').parse();
+    const { ast } = new Parser({ input: '@RootComponent' }).parse();
     const [node] = ast.body;
 
     expect(node.type).toEqual('annotation');
@@ -9,7 +9,7 @@ test('Parses directive', () => {
 });
 
 test('Parses assignment with list as rhs', () => {
-    const { ast } = new Parser('foo = bizz, bazz, buzz').parse();
+    const { ast } = new Parser({ input: 'foo = bizz, bazz, buzz' }).parse();
     const [node] = ast.body;
 
     expect(node.type).toEqual('assignment');
@@ -22,7 +22,7 @@ test('Parses assignment with list as rhs', () => {
 });
 
 test('Parses assignment with identifier as rhs', () => {
-    const { ast } = new Parser('foo = bizz').parse();
+    const { ast } = new Parser({ input: 'foo = bizz' }).parse();
     const [node] = ast.body;
 
     expect(node.type).toEqual('assignment');
@@ -32,7 +32,7 @@ test('Parses assignment with identifier as rhs', () => {
 
 test('Parses assignment with string as rhs', () => {
     const str = 'str!ng with rand0m chars 😎';
-    const { ast } = new Parser(`foo = "${str}"`).parse();
+    const { ast } = new Parser({ input: `foo = "${str}"` }).parse();
     const [node] = ast.body;
 
     expect(node.type).toEqual('assignment');
@@ -41,11 +41,13 @@ test('Parses assignment with string as rhs', () => {
 });
 
 test('Parses comments with leading asterisks', () => {
-    const { ast } = new Parser(`
+    const { ast } = new Parser({
+        input: `
         /**
          * @RootComponent
          */
-    `).parse();
+    `
+    }).parse();
     const [node] = ast.body;
 
     expect(node.type).toEqual('annotation');
@@ -53,52 +55,60 @@ test('Parses comments with leading asterisks', () => {
 });
 
 test('Parses the kitchen sink', () => {
-    const { ast } = new Parser(`
+    const { ast } = new Parser({
+        input: `
         /**
          * @RootComponent
          * foo = bizz, bazz, buzz
          * bar = car
          * jar = "test"
          */
-    `).parse();
+    `
+    }).parse();
     expect(ast).toMatchSnapshot();
 });
 
 test('Fails when directive is unrecognized type', () => {
-    const { error } = new Parser('@Unknown').parse();
+    const { error } = new Parser({ input: '@Unknown' }).parse();
     expect(error.message).toEqual('Unrecognized Directive: Unknown');
 });
 
 test('Fails when string is not terminated', () => {
-    const { error } = new Parser('foo = "bar').parse();
+    const { error } = new Parser({ input: 'foo = "bar' }).parse();
     expect(error.message).toBe('Unterminated string encountered');
 });
 
 test('Fails when list has dangling comma that creates ambiguity with ident on next line', () => {
-    const { error } = new Parser(`
+    const { error } = new Parser({
+        input: `
         @RootComponent
         pageTypes = foo, bizz,
         description = "hey"
-    `).parse();
+    `
+    }).parse();
     expect(error.message).toEqual(
         'Encountered illegal assignment in an unterminated list'
     );
 });
 
 test('Parses when dangling comma in list does not create ambiguity because EOF', () => {
-    const { ast } = new Parser(`
+    const { ast } = new Parser({
+        input: `
         @RootComponent
         pageTypes = foo, bizz,
-    `).parse();
+    `
+    }).parse();
     const [, node] = ast.body;
     expect(node.type).toEqual('assignment');
     expect(node.rhs.items.length).toEqual(2);
 });
 
 test('Parses multiple pieces of metadata on a single line', () => {
-    const { ast: { body }, error } = new Parser(`
+    const { ast: { body }, error } = new Parser({
+        input: `
         @RootComponent pageTypes = foo, bizz description = "test"
-    `).parse();
+    `
+    }).parse();
 
     const [first, second, third] = body;
     expect(first.type).toEqual('annotation');
@@ -109,12 +119,4 @@ test('Parses multiple pieces of metadata on a single line', () => {
 
     expect(third.type).toEqual('assignment');
     expect(third.rhs.value).toEqual('test');
-});
-
-test('isDirective is "true" when a valid annotation is found', () => {
-    expect(Parser.isDirective('@RootComponent')).toBe(true);
-});
-
-test('isDirective is "false" when an invalid annotation is found', () => {
-    expect(Parser.isDirective('@Foobar')).toBe(false);
 });

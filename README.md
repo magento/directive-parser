@@ -6,6 +6,13 @@ A _Directive_ in Magento PWA Studio is an inline comment within a source file th
 
 If you're a user of Magento PWA Studio, it's unlikely you're looking to depend on this package directly. The primary use-case for this library is to be consumed by other PWA Studio tools.
 
+## Goals
+
+The primary goals of this project are:
+
+* Parse all JavaScript comments within a source file, and return an AST with every comment that conforms to the Magento Directive syntax
+* Run significantly faster than a parser that parses the entire ECMAScript grammar
+
 ## Install
 
 ```sh
@@ -15,10 +22,8 @@ npm install @magento/directive-parser
 ## Usage
 
 ```js
-const Parser = require('@magento/directive-parser');
-const { ast, error } = new Parser(directiveString).parse();
-
-// if `error` is truthy, the parse failed
+const parseDirectives = require('@magento/directive-parser');
+const { directives, errors } = parseDirectives(someSourceFileString);
 ```
 
 ## Example Directive (Kitchen Sink)
@@ -30,7 +35,3 @@ const { ast, error } = new Parser(directiveString).parse();
  * description = "Some description here"
  */
 ```
-
-## AST Format
-
-Documentation unfinished. For now, see the snapshots tests in `src/__tests__/__snapshots__`

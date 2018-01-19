@@ -2,9 +2,20 @@ const Lexer = require('./Lexer');
 
 const ANNOTATIONS = new Set(['RootComponent']);
 
+/**
+ * Parses a Magento PWA Studio Directive, and generates an AST.
+ */
 class Parser {
-    constructor(input) {
-        this.lexer = new Lexer(input);
+    /**
+     * @param {object} opts
+     * @param {string} opts.input - String to parse. For proper location info, pass entire JS file, not just comment
+     * @param {number?} opts.start - Starting location. If parsing a specific comment, pass in start index
+     * @param {number?} opts.end - Ending location. If parsing a speific comment, pass in end index
+     */
+    constructor(opts) {
+        const { input, start = 0, end = input.length } = opts;
+
+        this.lexer = new Lexer({ input, start, end });
         this.tokens = null;
         this.position = 0;
         this.ast = null;
@@ -161,14 +172,5 @@ class Parser {
         this.position = this.tokens.length;
     }
 }
-
-/**
- * Determine (without a full parse) if a string is a PWA Studio directive.
- * A string is considered to be a directive if it has a valid annotation
- */
-Parser.isDirective = str => {
-    const annotationsPattern = [...ANNOTATIONS].map(s => `@${s}`).join('|');
-    return new RegExp(annotationsPattern).test(str);
-};
 
 module.exports = Parser;
