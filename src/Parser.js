@@ -3,22 +3,16 @@ const Lexer = require('./Lexer');
 const ANNOTATIONS = new Set(['RootComponent']);
 
 /**
- * Parses a Magento PWA Studio Directive, and generates an AST.
+ * Parses a Magento PWA Studio Directive, and generates an descriptor.
  */
 class Parser {
-    /**
-     * @param {object} opts
-     * @param {string} opts.input - String to parse. For proper location info, pass entire JS file, not just comment
-     * @param {number?} opts.start - Starting location. If parsing a specific comment, pass in start index
-     * @param {number?} opts.end - Ending location. If parsing a speific comment, pass in end index
-     */
-    constructor(opts) {
-        const { input, start = 0, end = input.length } = opts;
+    constructor(input, opts = {}) {
+        const { start = 0, end = input.length } = opts;
 
         this.lexer = new Lexer({ input, start, end });
         this.tokens = null;
         this.position = 0;
-        this.ast = null;
+        this.directive = null;
         this.error = null;
     }
 
@@ -30,13 +24,9 @@ class Parser {
         }
 
         this.tokens = tokens.slice();
-        const node = {
-            type: 'MagentoDirective',
-            body: []
-        };
 
-        this.ast = node;
-        this.parseDirectiveBody(node);
+        this.directive = {};
+        this.parseDirective();
         return this;
     }
 
@@ -49,15 +39,19 @@ class Parser {
         return this.position === this.tokens.length;
     }
 
-    parseDirectiveBody(node) {
+    parseDirective() {
+        if (!this.match('at')) {
+            this.directive = null;
+            return;
+        }
+
         while (!this.isDone) {
-            const newNode = {};
             switch (true) {
                 case this.match('at'):
-                    node.body.push(this.parseAnnotation(newNode));
+                    this.parseAnnotation();
                     break;
                 case this.match('identifier'):
-                    node.body.push(this.parseLine(newNode));
+                    this.parseLine();
                     break;
                 default:
                     this.reportError(
@@ -86,58 +80,50 @@ class Parser {
         return tokens[position + 1];
     }
 
-    parseAnnotation(node) {
+    parseAnnotation() {
         this.eat('at');
-        node.type = 'annotation';
-        node.value = this.eat('identifier').value;
-        if (!ANNOTATIONS.has(node.value)) {
-            this.reportError(`Unrecognized Directive: ${node.value}`);
+        const directiveType = (this.directive.type = this.eat(
+            'identifier'
+        ).value);
+        if (!ANNOTATIONS.has(directiveType)) {
+            this.reportError(`Unrecognized Directive: ${directiveType}`);
         }
-        return node;
     }
 
-    parseLine(node) {
+    parseLine() {
         const next = this.peek();
-        if ((this.match('assign'), next)) {
-            return this.parseAssignment(node);
+        if (this.match('assign', next)) {
+            return this.parseAssignment();
         }
         this.reportError(`Unexpected identifier "${this.currentToken.value}"`);
     }
 
-    parseAssignment(node) {
-        node.lhs = this.eat('identifier');
+    parseAssignment() {
+        const lhsIdentifier = this.eat('identifier').value;
         this.eat('assign');
-        node.type = 'assignment';
-        node.rhs = {};
 
         if (this.match('string')) {
-            node.rhs = this.eat();
-            return node;
+            this.directive[lhsIdentifier] = this.eat().value;
+            return;
         }
 
-        if (this.match('identifier')) {
-            if (this.match('comma', this.peek())) {
-                this.parseList(node.rhs);
-                return node;
-            }
-
-            node.rhs = this.eat();
-            return node;
+        if (this.match('identifier') && this.match('comma', this.peek())) {
+            this.parseList(lhsIdentifier);
+            return;
         }
 
         this.reportError(
-            `Unrecognized right-hand side value in assignment of "${
-                node.lhs.value
-            }". Found: "${this.peek().type}"`
+            `Unrecognized right-hand side value in assignment of "${lhsIdentifier}". Found: "${
+                this.peek().type
+            }"`
         );
     }
 
-    parseList(node) {
-        node.type = 'list';
-        const items = (node.items = []);
+    parseList(lhsIdentifier) {
+        const items = (this.directive[lhsIdentifier] = []);
 
         while (!this.isDone && this.match('identifier')) {
-            items.push(this.eat());
+            items.push(this.eat().value);
             if (this.isDone) break; // Last item in the list, and last line of directive
 
             let hasComma = this.eat('comma');
@@ -147,7 +133,7 @@ class Parser {
                 break;
             }
 
-            if (this.isDone) return node;
+            if (this.isDone) return;
 
             // Dangling comma not allowed when it would create ambiguity with next
             // token
@@ -161,16 +147,24 @@ class Parser {
         if (!this.isDone && this.match('comma')) {
             this.reportError('Unterminated list encountered');
         }
-
-        return node;
     }
 
     reportError(message) {
         // TODO: Location information
-        this.error = { message };
+        const error = (this.error = new Error(message));
+        this.directive = null;
         // Stop processing new tokens
         this.position = this.tokens.length;
     }
 }
 
-module.exports = Parser;
+/**
+ * @param {string} input
+ * @param {object} opts
+ * @param {number?} opts.start - Starting location. If parsing a specific comment, pass in start index
+ * @param {number?} opts.end - Ending location. If parsing a speific comment, pass in end index
+ */
+module.exports = (input, opts = {}) => {
+    const { directive, error } = new Parser(input, opts).parse();
+    return { directive, error };
+};

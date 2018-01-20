@@ -10,8 +10,9 @@ If you're a user of Magento PWA Studio, it's unlikely you're looking to depend o
 
 The primary goals of this project are:
 
-* Parse all JavaScript comments within a source file, and return an AST with every comment that conforms to the Magento Directive syntax
+* Parse all JavaScript comments within a source file, and return descriptors for every comment that conforms to the Magento Directive syntax
 * Run significantly faster than a parser that parses the entire ECMAScript grammar
+* Provide actionable warnings/errors with location info
 
 ## Install
 

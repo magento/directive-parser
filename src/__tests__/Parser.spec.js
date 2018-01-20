@@ -1,122 +1,69 @@
-const Parser = require('../Parser');
+const parseDirective = require('../Parser');
 
-test('Parses directive', () => {
-    const { ast } = new Parser({ input: '@RootComponent' }).parse();
-    const [node] = ast.body;
+test('Parses a full RootComponent directive', () => {
+    const { directive } = parseDirective(`
+        @RootComponent
+        pageTypes = product_page, product_page_special
+        description = 'Basic Product Page'
+    `);
 
-    expect(node.type).toEqual('annotation');
-    expect(node.value).toEqual('RootComponent');
-});
-
-test('Parses assignment with list as rhs', () => {
-    const { ast } = new Parser({ input: 'foo = bizz, bazz, buzz' }).parse();
-    const [node] = ast.body;
-
-    expect(node.type).toEqual('assignment');
-
-    const list = node.rhs;
-    expect(list.type).toEqual('list');
-    ['bizz', 'bazz', 'buzz'].forEach((ident, i) => {
-        expect(list.items[i].value).toEqual(ident);
-    });
-});
-
-test('Parses assignment with identifier as rhs', () => {
-    const { ast } = new Parser({ input: 'foo = bizz' }).parse();
-    const [node] = ast.body;
-
-    expect(node.type).toEqual('assignment');
-    expect(node.rhs.type).toEqual('identifier');
-    expect(node.rhs.value).toEqual('bizz');
-});
-
-test('Parses assignment with string as rhs', () => {
-    const str = 'str!ng with rand0m chars 😎';
-    const { ast } = new Parser({ input: `foo = "${str}"` }).parse();
-    const [node] = ast.body;
-
-    expect(node.type).toEqual('assignment');
-    expect(node.rhs.type).toEqual('string');
-    expect(node.rhs.value).toEqual(str);
+    expect(directive.type).toBe('RootComponent');
+    expect(directive.pageTypes).toEqual([
+        'product_page',
+        'product_page_special'
+    ]);
+    expect(directive.description).toBe('Basic Product Page');
 });
 
 test('Parses comments with leading asterisks', () => {
-    const { ast } = new Parser({
-        input: `
+    const { directive } = parseDirective(`
         /**
          * @RootComponent
          */
-    `
-    }).parse();
-    const [node] = ast.body;
+    `);
 
-    expect(node.type).toEqual('annotation');
-    expect(node.value).toEqual('RootComponent');
-});
-
-test('Parses the kitchen sink', () => {
-    const { ast } = new Parser({
-        input: `
-        /**
-         * @RootComponent
-         * foo = bizz, bazz, buzz
-         * bar = car
-         * jar = "test"
-         */
-    `
-    }).parse();
-    expect(ast).toMatchSnapshot();
+    expect(directive.type).toEqual('RootComponent');
 });
 
 test('Fails when directive is unrecognized type', () => {
-    const { error } = new Parser({ input: '@Unknown' }).parse();
+    const { error } = parseDirective('@Unknown');
     expect(error.message).toEqual('Unrecognized Directive: Unknown');
 });
 
 test('Fails when string is not terminated', () => {
-    const { error } = new Parser({ input: 'foo = "bar' }).parse();
+    const { error } = parseDirective(`
+        @RootComponent
+        description = "not closed
+    `);
     expect(error.message).toBe('Unterminated string encountered');
 });
 
 test('Fails when list has dangling comma that creates ambiguity with ident on next line', () => {
-    const { error } = new Parser({
-        input: `
+    const { error } = parseDirective(`
         @RootComponent
         pageTypes = foo, bizz,
         description = "hey"
-    `
-    }).parse();
+    `);
     expect(error.message).toEqual(
         'Encountered illegal assignment in an unterminated list'
     );
 });
 
 test('Parses when dangling comma in list does not create ambiguity because EOF', () => {
-    const { ast } = new Parser({
-        input: `
+    const { directive, error } = parseDirective(`
         @RootComponent
         pageTypes = foo, bizz,
-    `
-    }).parse();
-    const [, node] = ast.body;
-    expect(node.type).toEqual('assignment');
-    expect(node.rhs.items.length).toEqual(2);
+    `);
+    expect(error).toBeFalsy();
+    expect(directive.pageTypes).toEqual(['foo', 'bizz']);
 });
 
 test('Parses multiple pieces of metadata on a single line', () => {
-    const { ast: { body }, error } = new Parser({
-        input: `
-        @RootComponent pageTypes = foo, bizz description = "test"
-    `
-    }).parse();
+    const { directive, error } = parseDirective(`
+        @RootComponent pageTypes = foo, bizz description = "some descrip"
+    `);
 
-    const [first, second, third] = body;
-    expect(first.type).toEqual('annotation');
-    expect(first.value).toEqual('RootComponent');
-
-    expect(second.type).toEqual('assignment');
-    expect(second.rhs.items.length).toEqual(2);
-
-    expect(third.type).toEqual('assignment');
-    expect(third.rhs.value).toEqual('test');
+    expect(directive.type).toBe('RootComponent');
+    expect(directive.pageTypes).toEqual(['foo', 'bizz']);
+    expect(directive.description).toBe('some descrip');
 });

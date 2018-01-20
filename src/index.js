@@ -1,4 +1,4 @@
-const DirectiveParser = require('./Parser');
+const parseDirective = require('./Parser');
 const parseESComments = require('es-comments');
 
 module.exports = function parseDirectives(inputJS) {
@@ -9,19 +9,21 @@ module.exports = function parseDirectives(inputJS) {
         errors: []
     };
     const directiveComments = comments.reduce((acc, comment) => {
-        const { error, ast } = new DirectiveParser({
+        const { error, directive } = parseDirective(
             // Give the parser the whole string, rather than just the comment,
             // so it can calculate proper location info
-            input: inputJS,
-            // Start/end parse at comment's offsets
-            start: comment.start,
-            end: comment.end - 1 // TODO: Figure out this off by 1 err
-        }).parse();
+            inputJS,
+            {
+                // Start/end parse at comment's offsets
+                start: comment.start,
+                end: comment.end - 1 // TODO: Figure out this off by 1 err
+            }
+        );
 
         if (error) {
             results.errors.push(error);
         } else {
-            results.directives.push(ast);
+            results.directives.push(directive);
         }
 
         return results;

@@ -1,7 +1,7 @@
-const parseDirectives = require('..');
+const parseDirective = require('..');
 
 test('Can parse a single directive in a file with no errors', () => {
-    const { errors, directives } = parseDirectives(`
+    const { errors, directives } = parseDirective(`
         /**
          * @RootComponent
          * pageTypes = foo, bizz
@@ -12,7 +12,7 @@ test('Can parse a single directive in a file with no errors', () => {
 });
 
 test('Can parse a single directive in a file, and report error below it', () => {
-    const { errors, directives } = parseDirectives(`
+    const { errors, directives } = parseDirective(`
         /**
          * @RootComponent
          * pageTypes = foo, bizz
@@ -27,7 +27,7 @@ test('Can parse a single directive in a file, and report error below it', () => 
 });
 
 test('Can find directives below a directive error', () => {
-    const { errors, directives } = parseDirectives(`
+    const { errors, directives } = parseDirective(`
         /**
         * @NonExistentDirective
         */
