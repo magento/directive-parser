@@ -22,7 +22,9 @@ module.exports = function parseDirectives(inputJS) {
 
         if (error) {
             results.errors.push(error);
-        } else {
+        }
+
+        if (directive) {
             results.directives.push(directive);
         }
 
