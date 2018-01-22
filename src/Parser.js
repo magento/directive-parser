@@ -107,7 +107,7 @@ class Parser {
             return;
         }
 
-        if (this.match('identifier') && this.match('comma', this.peek())) {
+        if (this.match('identifier')) {
             this.parseList(lhsIdentifier);
             return;
         }
