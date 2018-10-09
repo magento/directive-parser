@@ -1,5 +1,8 @@
 {
   "name": "@magento/directive-parser",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.1.1",
   "description": "Parses Magento PWA Studio directives",
   "main": "src/index.js",

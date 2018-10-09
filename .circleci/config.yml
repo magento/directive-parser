@@ -1,0 +1,64 @@
+version: 2
+
+defaults:
+  working_directory: &workdir ~/repo
+  docker: &docker
+    - image: circleci/node:8.11.2
+
+jobs:
+  test:
+    working_directory: *workdir
+    docker: *docker
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-
+	  # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: npm ci
+      - run:
+          name: Run tests
+          command: npm test
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - .
+  deploy:
+    working_directory: *workdir
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  test-deploy:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /^v.*/
+      - deploy:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+
