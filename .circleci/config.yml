@@ -17,8 +17,12 @@ jobs:
           - v1-dependencies-{{ .Branch }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
-
-      - run: npm ci
+      - run:
+          name: Ensure NPM is up to date
+          command: sudo npm install -g npm@latest
+      - run:
+          name: Install from lockfile
+          command: npm ci
       - run:
           name: Run tests
           command: npm test
