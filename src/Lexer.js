@@ -1,5 +1,5 @@
 const reWhitespace = /\s/;
-const reIdentifierChar = /[\w-]/;
+const reIdentifierChar = /[^'"@=,\*\/\s]/;
 const reNewLine = /\n/;
 
 class Lexer {
