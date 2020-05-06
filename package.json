@@ -11,8 +11,7 @@
   ],
   "scripts": {
     "pretest": "npm run -s prettier:check",
-    "test": "npm run -s jest:ci",
-    "jest:ci": "jest -i",
+    "test": "jest",
     "test:dev": "jest --watch",
     "prettier": "prettier --write 'src/**/*.js'",
     "prettier:check": "prettier-check 'src/**/*.js'"
@@ -31,8 +30,8 @@
   },
   "homepage": "https://github.com/magento-research/directive-parser#readme",
   "devDependencies": {
-    "jest": "^24.9.0",
-    "prettier": "^1.14.3",
+    "jest": "^25.5.4",
+    "prettier": "^2.0.5",
     "prettier-check": "^2.0.0"
   },
   "dependencies": {
