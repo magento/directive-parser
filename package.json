@@ -12,7 +12,7 @@
   "scripts": {
     "pretest": "npm run -s prettier:check",
     "test": "npm run -s jest:ci",
-    "jest:ci": "jest -i",
+    "jest:ci": "jest -i --coverage",
     "test:dev": "jest --watch",
     "prettier": "prettier --write 'src/**/*.js'",
     "prettier:check": "prettier-check 'src/**/*.js'"
