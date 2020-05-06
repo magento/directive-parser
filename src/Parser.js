@@ -55,9 +55,7 @@ class Parser {
                     break;
                 default:
                     this.reportError(
-                        `Unknown top-level token of type "${
-                            this.currentToken.type
-                        }" encounted`
+                        `Unknown top-level token of type "${this.currentToken.type}" encounted`
                     );
             }
         }
