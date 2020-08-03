@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/magento-research/directive-parser.git"
+    "url": "git+https://github.com/magento/directive-parser.git"
   },
   "keywords": [
     "magento"
@@ -26,9 +26,9 @@
   "author": "Magento Commerce",
   "license": "(OSL-3.0 OR AFL-3.0)",
   "bugs": {
-    "url": "https://github.com/magento-research/directive-parser/issues"
+    "url": "https://github.com/magento/directive-parser/issues"
   },
-  "homepage": "https://github.com/magento-research/directive-parser#readme",
+  "homepage": "https://github.com/magento/directive-parser#readme",
   "devDependencies": {
     "jest": "^25.5.4",
     "prettier": "^2.0.5",
