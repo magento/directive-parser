@@ -1,6 +1,6 @@
 # PWA Studio Directive Parser
 
-![Node.js CI](https://github.com/magento-research/directive-parser/workflows/Node.js%20CI/badge.svg)
+![Node.js CI](https://github.com/magento/directive-parser/workflows/Node.js%20CI/badge.svg)
 
 A _Directive_ in Magento PWA Studio is an inline comment within a source file that signals additional metadata that should be processed by the PWA Studio tooling.
 
